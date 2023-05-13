@@ -46,6 +46,7 @@ class English implements LanguageInterface
         'ms' => 'Ms.',
         'mx' => 'Mx.',
         'rev' => 'Rev.',
+        'revd' => 'Revd.',
         'sir' => 'Sir',
         'prof' => 'Prof.',
         'his honour' => 'His Honour',
