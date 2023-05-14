@@ -4,6 +4,7 @@ namespace TheIconic\NameParser\Mapper;
 
 use TheIconic\NameParser\Part\AbstractPart;
 use TheIconic\NameParser\Part\Nickname;
+use function TheIconic\NameParser\substr;
 
 class NicknameMapper extends AbstractMapper
 {

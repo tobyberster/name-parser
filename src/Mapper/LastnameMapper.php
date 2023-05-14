@@ -2,13 +2,15 @@
 
 namespace TheIconic\NameParser\Mapper;
 
-use TheIconic\NameParser\LanguageInterface;
 use TheIconic\NameParser\Part\AbstractPart;
 use TheIconic\NameParser\Part\Lastname;
 use TheIconic\NameParser\Part\LastnamePrefix;
 use TheIconic\NameParser\Part\Nickname;
 use TheIconic\NameParser\Part\Salutation;
 use TheIconic\NameParser\Part\Suffix;
+use function TheIconic\NameParser\strlen;
+use function TheIconic\NameParser\strpos;
+use function TheIconic\NameParser\substr;
 
 class LastnameMapper extends AbstractMapper
 {

@@ -4,6 +4,9 @@ namespace TheIconic\NameParser\Mapper;
 
 use TheIconic\NameParser\Part\AbstractPart;
 use TheIconic\NameParser\Part\Initial;
+use function TheIconic\NameParser\characters;
+use function TheIconic\NameParser\strlen;
+use function TheIconic\NameParser\strtoupper;
 
 /**
  * single letter, possibly followed by a period
@@ -46,7 +49,7 @@ class InitialMapper extends AbstractMapper
                 $length = strlen($stripped);
 
                 if (1 < $length && $length <= $this->combinedMax) {
-                    array_splice($parts, $k, 1, str_split($stripped));
+                    array_splice($parts, $k, 1, characters($stripped));
                     $last = count($parts) - 1;
                     $part = $parts[$k];
                 }

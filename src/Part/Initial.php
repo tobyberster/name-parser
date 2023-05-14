@@ -1,6 +1,7 @@
 <?php
 
 namespace TheIconic\NameParser\Part;
+use function TheIconic\NameParser\strtoupper;
 
 class Initial extends GivenNamePart
 {

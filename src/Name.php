@@ -3,7 +3,6 @@
 namespace TheIconic\NameParser;
 
 use TheIconic\NameParser\Part\AbstractPart;
-use TheIconic\NameParser\Part\GivenNamePart;
 
 class Name
 {
