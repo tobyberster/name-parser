@@ -24,7 +24,7 @@ if (!function_exists('TheIconic\NameParser\characters')) {
 }
 
 if (!function_exists('TheIconic\NameParser\substr')) {
-    function substr(string $string, int $start, int $length = null): string
+    function substr(string $string, int $start, ?int $length = null): string
     {
         return \substr($string, $start, $length);
     }

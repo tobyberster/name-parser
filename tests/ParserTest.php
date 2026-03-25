@@ -11,7 +11,7 @@ class ParserTest extends TestCase
     /**
      * @return array
      */
-    public function provider()
+    public static function provider()
     {
         return [
             [
@@ -563,12 +563,7 @@ class ParserTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provider
-     *
-     * @param $input
-     * @param $expectation
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provider')]
     public function testParse($input, $expectation)
     {
         $parser = new Parser();

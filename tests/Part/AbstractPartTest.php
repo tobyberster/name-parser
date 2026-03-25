@@ -11,7 +11,7 @@ class AbstractPartTest extends TestCase
      */
     public function testNormalize()
     {
-        $part = $this->getMockForAbstractClass(AbstractPart::class, ['abc']);
+        $part = new class('abc') extends AbstractPart {};
         $this->assertEquals('abc', $part->normalize());
     }
 
@@ -20,10 +20,10 @@ class AbstractPartTest extends TestCase
      */
     public function testSetValueUnwraps()
     {
-        $part = $this->getMockForAbstractClass(AbstractPart::class, ['abc']);
+        $part = new class('abc') extends AbstractPart {};
         $this->assertEquals('abc', $part->getValue());
 
-        $part = $this->getMockForAbstractClass(AbstractPart::class, [$part]);
-        $this->assertEquals('abc', $part->getValue());
+        $part2 = new class($part) extends AbstractPart {};
+        $this->assertEquals('abc', $part2->getValue());
     }
 }

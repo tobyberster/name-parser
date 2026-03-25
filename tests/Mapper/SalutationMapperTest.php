@@ -12,7 +12,7 @@ class SalutationMapperTest extends AbstractMapperTest
     /**
      * @return array
      */
-    public function provider()
+    public static function provider()
     {
         return [
             [

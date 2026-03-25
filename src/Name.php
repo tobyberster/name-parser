@@ -18,7 +18,7 @@ class Name
      *
      * @param array|null $parts
      */
-    public function __construct(array $parts = null)
+    public function __construct(?array $parts = null)
     {
         if (null !== $parts) {
             $this->setParts($parts);
