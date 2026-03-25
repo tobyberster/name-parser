@@ -4,7 +4,6 @@ namespace TheIconic\NameParser\Mapper;
 
 use TheIconic\NameParser\Part\AbstractPart;
 use TheIconic\NameParser\Part\Nickname;
-use function TheIconic\NameParser\substr;
 
 class NicknameMapper extends AbstractMapper
 {
@@ -41,6 +40,9 @@ class NicknameMapper extends AbstractMapper
 
         $closingDelimiter = '';
 
+        /** @var array<int, string> indices mapped during current unclosed encapsulation, with original values */
+        $pendingNicknames = [];
+
         foreach ($parts as $k => $part) {
             if ($part instanceof AbstractPart) {
                 continue;
@@ -48,20 +50,31 @@ class NicknameMapper extends AbstractMapper
 
             if (preg_match($regexp, $part, $matches)) {
                 $isEncapsulated = true;
-                $part = substr($part, 1);
+                $part = mb_substr($part, 1, null, 'UTF-8');
                 $closingDelimiter = $this->delimiters[$matches[1]];
+                $pendingNicknames = [];
             }
 
             if (!$isEncapsulated) {
                 continue;
             }
 
-            if ($closingDelimiter === substr($part, -1)) {
+            $pendingNicknames[$k] = $parts[$k];
+
+            if ($closingDelimiter === mb_substr($part, -1, 1, 'UTF-8')) {
                 $isEncapsulated = false;
-                $part = substr($part, 0, -1);
+                $part = mb_substr($part, 0, -1, 'UTF-8');
+                $pendingNicknames = [];
             }
 
             $parts[$k] = new Nickname(str_replace(['"', '\''], '', $part));
+        }
+
+        // revert if closing delimiter was never found
+        if ($isEncapsulated) {
+            foreach ($pendingNicknames as $k => $original) {
+                $parts[$k] = $original;
+            }
         }
 
         return $parts;

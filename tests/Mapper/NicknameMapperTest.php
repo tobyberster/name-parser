@@ -106,6 +106,51 @@ class NicknameMapperTest extends AbstractMapperTest
                     'Roussimoff',
                 ],
             ],
+            // unclosed delimiter should revert nickname mappings
+            [
+                'input' => [
+                    'John',
+                    '(Nick',
+                    'Smith',
+                ],
+                'expectation' => [
+                    'John',
+                    '(Nick',
+                    'Smith',
+                ],
+            ],
+            // unclosed delimiter with already-mapped parts should revert
+            [
+                'input' => [
+                    new Salutation('Mr'),
+                    'John',
+                    '(Nick',
+                    'Middle',
+                    'Smith',
+                ],
+                'expectation' => [
+                    new Salutation('Mr'),
+                    'John',
+                    '(Nick',
+                    'Middle',
+                    'Smith',
+                ],
+            ],
+            // closed nickname followed by unclosed should keep the closed one
+            [
+                'input' => [
+                    'John',
+                    '(Jim)',
+                    '(Broken',
+                    'Smith',
+                ],
+                'expectation' => [
+                    'John',
+                    new Nickname('Jim'),
+                    '(Broken',
+                    'Smith',
+                ],
+            ],
         ];
     }
 

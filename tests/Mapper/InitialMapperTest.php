@@ -98,7 +98,62 @@ class InitialMapperTest extends AbstractMapperTest
                 'arguments' => [
                     1
                 ]
-            ]
+            ],
+            // combined initials at last position should not expand when matchLastPart is false
+            [
+                'input' => [
+                    'Smith',
+                    'MR',
+                ],
+                'expectation' => [
+                    'Smith',
+                    'MR',
+                ],
+            ],
+            // combined initials at last position should expand when matchLastPart is true
+            [
+                'input' => [
+                    'Smith',
+                    'MR',
+                ],
+                'expectation' => [
+                    'Smith',
+                    new Initial('M'),
+                    new Initial('R'),
+                ],
+                'arguments' => [
+                    2,
+                    true,
+                ],
+            ],
+            // multiple combined initials in one name
+            [
+                'input' => [
+                    'JM',
+                    'Peter',
+                    'Walker',
+                ],
+                'expectation' => [
+                    new Initial('J'),
+                    new Initial('M'),
+                    'Peter',
+                    'Walker',
+                ],
+            ],
+            // already-mapped parts should be skipped during expansion
+            [
+                'input' => [
+                    new Salutation('Mr'),
+                    'JM',
+                    'Walker',
+                ],
+                'expectation' => [
+                    new Salutation('Mr'),
+                    new Initial('J'),
+                    new Initial('M'),
+                    'Walker',
+                ],
+            ],
         ];
     }
 

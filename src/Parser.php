@@ -67,6 +67,10 @@ class Parser
     {
         $name = $this->normalize($name);
 
+        if ('' === $name) {
+            return new Name();
+        }
+
         $segments = explode(',', $name);
 
         if (1 < count($segments)) {

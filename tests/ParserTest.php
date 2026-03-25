@@ -623,6 +623,35 @@ class ParserTest extends TestCase
         $this->assertSame('P A G', $parser->parse('Charles PAG Mountbatten-Windsor')->getInitials());
     }
 
+    public function testParseEmptyString()
+    {
+        $parser = new Parser();
+        $name = $parser->parse('');
+
+        $this->assertInstanceOf(Name::class, $name);
+        $this->assertSame([], $name->getAll());
+        $this->assertSame('', $name->getFirstname());
+        $this->assertSame('', $name->getLastname());
+    }
+
+    public function testParseWhitespaceOnly()
+    {
+        $parser = new Parser();
+        $name = $parser->parse("  \t\n  ");
+
+        $this->assertInstanceOf(Name::class, $name);
+        $this->assertSame([], $name->getAll());
+    }
+
+    public function testParseUnclosedNicknamePreservesName()
+    {
+        $parser = new Parser();
+        $name = $parser->parse('John (Nick Smith');
+
+        $this->assertSame('Smith', $name->getLastname());
+        $this->assertSame('', $name->getNickname());
+    }
+
     public function testParserAndSubparsersProperlyHandleLanguages()
     {
         $parser = new Parser([

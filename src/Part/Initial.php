@@ -1,7 +1,6 @@
 <?php
 
 namespace TheIconic\NameParser\Part;
-use function TheIconic\NameParser\strtoupper;
 
 class Initial extends GivenNamePart
 {
@@ -12,6 +11,6 @@ class Initial extends GivenNamePart
      */
     public function normalize(): string
     {
-        return strtoupper($this->getValue());
+        return mb_strtoupper($this->getValue(), 'UTF-8');
     }
 }

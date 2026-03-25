@@ -2,8 +2,6 @@
 
 namespace TheIconic\NameParser\Part;
 
-use function TheIconic\NameParser\tcword;
-
 abstract class AbstractPart
 {
     /**
@@ -83,6 +81,6 @@ abstract class AbstractPart
      */
     protected function camelcaseReplace($matches): string
     {
-        return tcword($matches[0]);
+        return mb_convert_case($matches[0], MB_CASE_TITLE, 'UTF-8');
     }
 }

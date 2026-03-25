@@ -4,9 +4,6 @@ namespace TheIconic\NameParser\Mapper;
 
 use TheIconic\NameParser\Part\AbstractPart;
 use TheIconic\NameParser\Part\Initial;
-use function TheIconic\NameParser\characters;
-use function TheIconic\NameParser\strlen;
-use function TheIconic\NameParser\strtoupper;
 
 /**
  * single letter, possibly followed by a period
@@ -31,11 +28,11 @@ class InitialMapper extends AbstractMapper
      */
     public function map(array $parts): array
     {
+        // first pass: collect combined initials that need expanding
+        $expansions = [];
         $last = count($parts) - 1;
 
-        for ($k = 0; $k < count($parts); $k++) {
-            $part = $parts[$k];
-
+        foreach ($parts as $k => $part) {
             if ($part instanceof AbstractPart) {
                 continue;
             }
@@ -44,15 +41,31 @@ class InitialMapper extends AbstractMapper
                 continue;
             }
 
-            if (strtoupper($part) === $part) {
+            if (mb_strtoupper($part, 'UTF-8') === $part) {
                 $stripped = str_replace('.', '', $part);
-                $length = strlen($stripped);
+                $length = mb_strlen($stripped, 'UTF-8');
 
                 if (1 < $length && $length <= $this->combinedMax) {
-                    array_splice($parts, $k, 1, characters($stripped));
-                    $last = count($parts) - 1;
-                    $part = $parts[$k];
+                    $expansions[$k] = preg_split('//u', $stripped, -1, PREG_SPLIT_NO_EMPTY);
                 }
+            }
+        }
+
+        // apply expansions in reverse order so indices stay valid
+        foreach (array_reverse($expansions, true) as $k => $chars) {
+            array_splice($parts, $k, 1, $chars);
+        }
+
+        // second pass: map individual initials
+        $last = count($parts) - 1;
+
+        foreach ($parts as $k => $part) {
+            if ($part instanceof AbstractPart) {
+                continue;
+            }
+
+            if (!$this->matchLastPart && $k === $last) {
+                continue;
             }
 
             if ($this->isInitial($part)) {
@@ -69,12 +82,12 @@ class InitialMapper extends AbstractMapper
      */
     protected function isInitial(string $part): bool
     {
-        $length = strlen($part);
+        $length = mb_strlen($part, 'UTF-8');
 
         if (1 === $length) {
             return true;
         }
 
-        return ($length === 2 && substr($part, -1) ===  '.');
+        return ($length === 2 && mb_substr($part, -1, 1, 'UTF-8') === '.');
     }
 }

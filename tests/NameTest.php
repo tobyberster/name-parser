@@ -69,4 +69,73 @@ class NameTest extends TestCase
         $name = $parser->parse('Schuler, J. Peter M.');
         $this->assertSame('J. Peter M. Schuler', $name->getFullName());
     }
+
+    public function testExportCacheIsInvalidatedBySetParts(): void
+    {
+        $name = new Name([
+            new Firstname('John'),
+            new Lastname('Doe'),
+        ]);
+
+        $this->assertSame('John', $name->getFirstname());
+        $this->assertSame('Doe', $name->getLastname());
+
+        $name->setParts([
+            new Firstname('Jane'),
+            new Lastname('Smith'),
+        ]);
+
+        $this->assertSame('Jane', $name->getFirstname());
+        $this->assertSame('Smith', $name->getLastname());
+    }
+
+    public function testExportCacheReturnsSameResultOnRepeatedCalls(): void
+    {
+        $name = new Name([
+            new Firstname('John'),
+            new Middlename('Paul'),
+            new Lastname('Doe'),
+        ]);
+
+        // call multiple times to exercise cache path
+        $this->assertSame('John', $name->getFirstname());
+        $this->assertSame('John', $name->getFirstname());
+        $this->assertSame('Paul', $name->getMiddlename());
+        $this->assertSame('Doe', $name->getLastname());
+        $this->assertSame('Doe', $name->getLastname());
+    }
+
+    public function testGetAllWithExplicitCalls(): void
+    {
+        $name = new Name([
+            new Salutation('Mr', 'Mr.'),
+            new Firstname('John'),
+            new Lastname('Doe'),
+            new Suffix('Jr', 'Jr'),
+        ]);
+
+        $all = $name->getAll();
+
+        $this->assertSame('Mr.', $all['salutation']);
+        $this->assertSame('John', $all['firstname']);
+        $this->assertSame('Doe', $all['lastname']);
+        $this->assertSame('Jr', $all['suffix']);
+        $this->assertArrayNotHasKey('nickname', $all);
+        $this->assertArrayNotHasKey('middlename', $all);
+        $this->assertArrayNotHasKey('initials', $all);
+    }
+
+    public function testEmptyNameReturnsEmptyStrings(): void
+    {
+        $name = new Name();
+
+        $this->assertSame('', $name->getFirstname());
+        $this->assertSame('', $name->getLastname());
+        $this->assertSame('', $name->getMiddlename());
+        $this->assertSame('', $name->getSalutation());
+        $this->assertSame('', $name->getSuffix());
+        $this->assertSame('', $name->getNickname());
+        $this->assertSame('', $name->getInitials());
+        $this->assertSame([], $name->getAll());
+    }
 }

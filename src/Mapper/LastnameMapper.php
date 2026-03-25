@@ -8,9 +8,6 @@ use TheIconic\NameParser\Part\LastnamePrefix;
 use TheIconic\NameParser\Part\Nickname;
 use TheIconic\NameParser\Part\Salutation;
 use TheIconic\NameParser\Part\Suffix;
-use function TheIconic\NameParser\strlen;
-use function TheIconic\NameParser\strpos;
-use function TheIconic\NameParser\substr;
 
 class LastnameMapper extends AbstractMapper
 {
@@ -110,13 +107,13 @@ class LastnameMapper extends AbstractMapper
      */
     private function isCombinedWithPrefix(string $part): bool
     {
-        $pos = strpos($part, '-');
+        $pos = mb_strpos($part, '-', 0, 'UTF-8');
 
         if (false === $pos) {
             return false;
         }
 
-        return $this->isPrefix(substr($part, $pos + 1));
+        return $this->isPrefix(mb_substr($part, $pos + 1, null, 'UTF-8'));
     }
 
     /**
@@ -162,7 +159,7 @@ class LastnameMapper extends AbstractMapper
 
 
 
-        return strlen($lastPart->getValue()) >= 3;
+        return mb_strlen($lastPart->getValue(), 'UTF-8') >= 3;
     }
 
     /**

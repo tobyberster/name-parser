@@ -14,6 +14,11 @@ class Name
     protected $parts = [];
 
     /**
+     * @var array<string, string> cached export results keyed by type+strict
+     */
+    private array $exportCache = [];
+
+    /**
      * constructor takes the array of parts this name consists of
      *
      * @param array|null $parts
@@ -42,6 +47,7 @@ class Name
     public function setParts(array $parts): Name
     {
         $this->parts = $parts;
+        $this->exportCache = [];
 
         return $this;
     }
@@ -63,21 +69,21 @@ class Name
     public function getAll(bool $format = false): array
     {
         $results = [];
-        $keys = [
-            'salutation' => [],
-            'firstname' => [],
-            'nickname' => [$format],
-            'middlename' => [],
-            'initials' => [],
-            'lastname' => [],
-            'suffix' => [],
+
+        $map = [
+            'salutation' => $this->getSalutation(),
+            'firstname' => $this->getFirstname(),
+            'nickname' => $this->getNickname($format),
+            'middlename' => $this->getMiddlename(),
+            'initials' => $this->getInitials(),
+            'lastname' => $this->getLastname(),
+            'suffix' => $this->getSuffix(),
         ];
 
-        foreach ($keys as $key => $args) {
-            $method = sprintf('get%s', ucfirst($key));
-            if ($value = call_user_func_array(array($this, $method), $args)) {
+        foreach ($map as $key => $value) {
+            if ($value !== '') {
                 $results[$key] = $value;
-            };
+            }
         }
 
         return $results;
@@ -199,6 +205,12 @@ class Name
      */
     protected function export(string $type, bool $strict = false): string
     {
+        $cacheKey = $type . ($strict ? '!' : '');
+
+        if (isset($this->exportCache[$cacheKey])) {
+            return $this->exportCache[$cacheKey];
+        }
+
         $matched = [];
 
         foreach ($this->parts as $part) {
@@ -207,7 +219,7 @@ class Name
             }
         }
 
-        return implode(' ',  $matched);
+        return $this->exportCache[$cacheKey] = implode(' ', $matched);
     }
 
     /**
