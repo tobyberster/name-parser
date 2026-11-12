@@ -11,10 +11,29 @@ class SalutationMapper extends AbstractMapper
 
     protected $maxIndex = 0;
 
+    /**
+     * multi-word salutation keys split into words, longest first
+     *
+     * @var array
+     */
+    protected $multiWordKeys = [];
+
     public function __construct(array $salutations, $maxIndex = 0)
     {
         $this->salutations = $salutations;
         $this->maxIndex = $maxIndex;
+
+        foreach (array_keys($salutations) as $key) {
+            $words = explode(' ', (string) $key);
+
+            if (count($words) > 1) {
+                $this->multiWordKeys[$key] = $words;
+            }
+        }
+
+        uasort($this->multiWordKeys, function (array $a, array $b) {
+            return count($b) <=> count($a);
+        });
     }
 
     /**
@@ -49,21 +68,25 @@ class SalutationMapper extends AbstractMapper
      */
     protected function substituteWithSalutation(array $parts, int $start): array
     {
-        if ($this->isSalutation($parts[$start])) {
-            $parts[$start] = new Salutation($parts[$start], $this->salutations[$this->getKey($parts[$start])]);
-            return $parts;
-        }
-
-        foreach ($this->salutations as $key => $salutation) {
-            $keys = explode(' ', $key);
+        // multi-word entries first, so "Dr. med." is not taken as "Dr." plus a first name "med."
+        foreach ($this->multiWordKeys as $key => $keys) {
             $length = count($keys);
 
             $subset = array_slice($parts, $start, $length);
 
+            // leave at least one part for the name itself
+            if ($start + $length >= count($parts)) {
+                continue;
+            }
+
             if ($this->isMatchingSubset($keys, $subset)) {
-                array_splice($parts, $start, $length, [new Salutation(implode(' ', $subset), $salutation)]);
+                array_splice($parts, $start, $length, [new Salutation(implode(' ', $subset), $this->salutations[$key])]);
                 return $parts;
             }
+        }
+
+        if ($this->isSalutation($parts[$start])) {
+            $parts[$start] = new Salutation($parts[$start], $this->salutations[$this->getKey($parts[$start])]);
         }
 
         return $parts;
@@ -81,7 +104,7 @@ class SalutationMapper extends AbstractMapper
     private function isMatchingSubset(array $keys, array $subset): bool
     {
         for ($i = 0; $i < count($subset); $i++) {
-            if ($this->getKey($subset[$i]) !== $keys[$i]) {
+            if ($subset[$i] instanceof AbstractPart || $this->getKey($subset[$i]) !== $keys[$i]) {
                 return false;
             }
         }

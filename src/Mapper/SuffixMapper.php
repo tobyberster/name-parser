@@ -29,7 +29,7 @@ class SuffixMapper extends AbstractMapper
     public function map(array $parts): array
     {
         if ($this->isMatchingSinglePart($parts)) {
-            $parts[0] = new Suffix($parts[0], $this->suffixes[$this->getKey($parts[0])]);
+            $parts[0] = new Suffix($parts[0], $this->suffixes[$this->getSuffixKey($parts[0])]);
             return $parts;
         }
 
@@ -42,7 +42,7 @@ class SuffixMapper extends AbstractMapper
                 break;
             }
 
-            $parts[$k] = new Suffix($part, $this->suffixes[$this->getKey($part)]);
+            $parts[$k] = new Suffix($part, $this->suffixes[$this->getSuffixKey($part)]);
         }
 
         return $parts;
@@ -75,6 +75,30 @@ class SuffixMapper extends AbstractMapper
             return false;
         }
 
-        return (array_key_exists($this->getKey($part), $this->suffixes));
+        return null !== $this->getSuffixKey($part);
+    }
+
+    /**
+     * find the key of the given word in the suffix list
+     *
+     * keys that end in a dot (e.g. "sen.") only match a word written
+     * with that dot, so they do not swallow a lastname spelled the same
+     *
+     * @param string $part
+     * @return string|null
+     */
+    protected function getSuffixKey(string $part): ?string
+    {
+        $key = $this->getKey($part);
+
+        if (array_key_exists($key, $this->suffixes)) {
+            return $key;
+        }
+
+        if ('.' === mb_substr($part, -1, null, 'UTF-8') && array_key_exists($key . '.', $this->suffixes)) {
+            return $key . '.';
+        }
+
+        return null;
     }
 }

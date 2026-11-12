@@ -217,6 +217,8 @@ class LastnameMapper extends AbstractMapper
      * We only apply it to the lastname if we already have at least one
      * lastname part and there are other parts left in
      * the name (this effectively prioritises firstname over prefix matching).
+     * Without other parts, only a prefix written in lowercase is applied:
+     * "von Stein" is a lastname, "Van Truong" a first and a last name.
      *
      * This expects the parts array and index to be in the original order.
      *
@@ -230,7 +232,11 @@ class LastnameMapper extends AbstractMapper
             return false;
         }
 
-        return $this->hasUnmappedPartsBefore($parts, $index);
+        if ($this->hasUnmappedPartsBefore($parts, $index)) {
+            return true;
+        }
+
+        return mb_strtolower($parts[$index], 'UTF-8') === $parts[$index];
     }
 
     /**
