@@ -15,6 +15,7 @@
   <testsuites>
     <testsuite name="The Iconic Name Parser Test Suite">
       <directory>./tests</directory>
+      <exclude>./tests/Mapper/AbstractMapperTest.php</exclude>
     </testsuite>
   </testsuites>
   <source>
